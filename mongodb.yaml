@@ -1,0 +1,75 @@
+# MongoDB 8.0 — single pod with journalCommitInterval tunable at runtime
+# Matches paper: "MongoDB 8.0.12 (Bitnami, 1 pod)"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mongodb-secret
+  namespace: default
+type: Opaque
+stringData:
+  MONGODB_ROOT_PASSWORD: "password"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+  namespace: default
+  labels:
+    app: mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo:8.0
+          ports:
+            - containerPort: 27017
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: root
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: MONGODB_ROOT_PASSWORD
+          args:
+            - "--journal"
+            - "--journalCommitInterval"
+            - "100"           # Initial value; will be controlled at runtime
+            - "--wiredTigerCacheSizeGB"
+            - "1"
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2"
+              memory: "3Gi"
+          volumeMounts:
+            - name: data
+              mountPath: /data/db
+      volumes:
+        - name: data
+          emptyDir: {}         # Non-persistent (experiment environment)
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  namespace: default
+spec:
+  selector:
+    app: mongodb
+  ports:
+    - port: 27017
+      targetPort: 27017
+      nodePort: 30017
+  type: NodePort

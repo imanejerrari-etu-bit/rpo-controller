@@ -1,0 +1,176 @@
+# MySQL PXC 8.0 — 3-node Galera cluster
+# Matches paper: "MySQL PXC 8.0.36 (3-node Galera + HAProxy)"
+#
+# Note: This uses a StatefulSet with percona/percona-xtradb-cluster image.
+#       The Percona Operator is not required for the experiment environment.
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-pxc-config
+  namespace: default
+data:
+  custom.cnf: |
+    [mysqld]
+    innodb_flush_log_at_trx_commit=2
+    wsrep_sync_wait=0
+    max_connections=500
+    innodb_buffer_pool_size=512M
+    innodb_log_file_size=128M
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-secret
+  namespace: default
+type: Opaque
+stringData:
+  MYSQL_ROOT_PASSWORD:  "password"
+  CLUSTERCHECK_PASSWORD: "clustercheck"
+  XTRABACKUP_PASSWORD:  "xtrabackup"
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql-pxc
+  namespace: default
+spec:
+  serviceName: mysql-pxc-headless
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mysql-pxc
+  template:
+    metadata:
+      labels:
+        app: mysql-pxc
+    spec:
+      initContainers:
+        - name: init-pxc
+          image: busybox
+          command: ["sh", "-c", "until nslookup mysql-pxc-0.mysql-pxc-headless; do echo waiting; sleep 2; done || true"]
+      containers:
+        - name: pxc
+          image: percona/percona-xtradb-cluster:8.0
+          ports:
+            - containerPort: 3306   # MySQL
+            - containerPort: 4567   # Galera replication
+            - containerPort: 4568   # IST
+            - containerPort: 4444   # SST
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_ROOT_PASSWORD
+            - name: CLUSTERCHECK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: CLUSTERCHECK_PASSWORD
+            - name: XTRABACKUP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: XTRABACKUP_PASSWORD
+            - name: CLUSTER_NAME
+              value: rpo-cluster
+            - name: K8S_SERVICE_NAME
+              value: mysql-pxc-headless
+            - name: PXC_STRICT_MODE
+              value: PERMISSIVE
+          volumeMounts:
+            - name: config
+              mountPath: /etc/percona-xtradb-cluster.conf.d/
+            - name: data
+              mountPath: /var/lib/mysql
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2"
+              memory: "2Gi"
+          readinessProbe:
+            exec:
+              command: ["bash", "-c", "mysql -uroot -p$MYSQL_ROOT_PASSWORD -e 'SELECT 1' 2>/dev/null"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+      volumes:
+        - name: config
+          configMap:
+            name: mysql-pxc-config
+        - name: data
+          emptyDir: {}
+---
+# Headless service for Galera peer discovery
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-pxc-headless
+  namespace: default
+spec:
+  clusterIP: None
+  selector:
+    app: mysql-pxc
+  ports:
+    - name: mysql
+      port: 3306
+    - name: galera
+      port: 4567
+    - name: ist
+      port: 4568
+    - name: sst
+      port: 4444
+---
+# Client-facing service (HAProxy-like load balancer)
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-pxc
+  namespace: default
+spec:
+  selector:
+    app: mysql-pxc
+  ports:
+    - name: mysql
+      port: 3306
+      targetPort: 3306
+      nodePort: 30306
+  type: NodePort
+---
+# Bootstrap job — creates test database
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mysql-bootstrap
+  namespace: default
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      initContainers:
+        - name: wait-mysql
+          image: busybox
+          command: ["sh", "-c",
+            "until nc -z mysql-pxc 3306; do echo waiting for mysql; sleep 5; done"]
+      containers:
+        - name: bootstrap
+          image: mysql:8.0
+          command:
+            - bash
+            - -c
+            - |
+              sleep 10
+              mysql -h mysql-pxc -uroot -p$MYSQL_ROOT_PASSWORD -e "
+                CREATE DATABASE IF NOT EXISTS testdb;
+                CREATE USER IF NOT EXISTS 'rpo'@'%' IDENTIFIED BY 'password';
+                GRANT ALL ON testdb.* TO 'rpo'@'%';
+                FLUSH PRIVILEGES;
+              "
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_ROOT_PASSWORD
