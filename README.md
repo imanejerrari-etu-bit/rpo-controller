@@ -1,44 +1,31 @@
-# RPO Controller — Experiment Replication Package
-
+RPO Controller — Experiment Replication Package
 PI adaptive write-behind controller for Kubernetes databases.
-Companion code for the paper *"An Adaptive Write-Behind Interval Controller
-for Kubernetes Databases: SLA-Driven RPO Management via PI Feedback Control"*.
-
+Companion code for the paper "An Adaptive Write-Behind Interval Controller
+for Kubernetes Databases: SLA-Driven RPO Management via PI Feedback Control".
 ---
-
-## Citation
-
+Citation
 If you use this code, please cite:
-
 > Jerrari I, Assayad I. "An Adaptive Write-Behind Interval Controller for
 > Kubernetes Databases: SLA-Driven RPO Management via PI Feedback Control."
 > *Computing* (Springer), [under revision].
-
 ---
-
-## A note on result file naming
-
+A note on result file naming
 Some run numbers (e.g. `run06`, `run13`, `run14`, `run15`) appear with
-**two different TPS values** in the filename, e.g.
+two different TPS values in the filename, e.g.
 `mongodb_run06_236tps.json` and `mongodb_run06_320tps.json`. This is not
-a duplicate or a data-entry error: the two files correspond to **two
-different workload generators run under the same run index**:
-
-- The file **without** a `workload_source` field (e.g. `..._320tps.json`)
-  is from the main campaign, driven by the custom token-bucket generator
-  described in `experiments/workload.py`.
-- The file **with** `"workload_source": "ycsb-0.17.0"` in its JSON header
-  (e.g. `..._236tps.json`) is from the YCSB replication study reported in
-  the paper's evaluation section, which reuses the same run indices under
-  a different load generator to test cross-generator generalisation.
-
+a duplicate or a data-entry error: the two files correspond to two
+different workload generators run under the same run index:
+The file without a `workload_source` field (e.g. `..._320tps.json`)
+is from the main campaign, driven by the custom token-bucket generator
+described in `experiments/workload.py`.
+The file with `"workload_source": "ycsb-0.17.0"` in its JSON header
+(e.g. `..._236tps.json`) is from the YCSB replication study reported in
+the paper's evaluation section, which reuses the same run indices under
+a different load generator to test cross-generator generalisation.
 Inspect the top-level `workload_source` key of any result file to
 determine which experiment it belongs to.
-
 ---
-
-## Repository Structure
-
+Repository Structure
 ```
 rpo-controller/
 ├── rpo_controller/          # Core library
@@ -64,11 +51,8 @@ rpo-controller/
 ├── analysis_outputs/        # Bootstrap CI tables, LaTeX fragments used in the paper
 └── requirements.txt
 ```
-
 ---
-
-## Prerequisites (WSL2 Ubuntu)
-
+Prerequisites (WSL2 Ubuntu)
 ```bash
 # 1. Docker Desktop running (with WSL2 integration enabled)
 
@@ -77,30 +61,21 @@ pip install -r requirements.txt
 
 # 3. Install Kind + kubectl (done automatically by setup_cluster.sh)
 ```
-
 ---
-
-## Step 1 — Create Cluster & Deploy Databases
-
+Step 1 — Create Cluster & Deploy Databases
 ```bash
 chmod +x scripts/setup_cluster.sh
 ./scripts/setup_cluster.sh
 ```
-
 This will:
-- Create a 4-node Kind cluster
-- Deploy MongoDB 8.0, MySQL PXC (3-node Galera), Redis 8 with AOF
-- Start port-forwarding on localhost:27017 / 3306 / 6379
-- Run connection tests
-
-**Keep this terminal open** — it maintains the port-forwards.
-
+Create a 4-node Kind cluster
+Deploy MongoDB 8.0, MySQL PXC (3-node Galera), Redis 8 with AOF
+Start port-forwarding on localhost:27017 / 3306 / 6379
+Run connection tests
+Keep this terminal open — it maintains the port-forwards.
 ---
-
-## Step 2 — Run the Campaign (20 runs × 3 engines)
-
+Step 2 — Run the Campaign (20 runs × 3 engines)
 Open a second terminal:
-
 ```bash
 # All engines, 20 runs each (~10 hours total)
 python experiments/run_campaign.py --n-runs 20
@@ -111,36 +86,26 @@ python experiments/run_campaign.py --engine mongodb --n-runs 20
 # Or resume from run 6 (if runs 1-5 already done)
 python experiments/run_campaign.py --start-run 6 --n-runs 15
 ```
-
 Results are saved to `results/` as JSON files, one per run.
-
-### RPO targets tested per engine
-
-The paper evaluates each engine under one or more RPO\* targets. The
+RPO targets tested per engine
+The paper evaluates each engine under one or more RPO* targets. The
 campaign script exposes all of them via `--rpo-target`:
-
-| Engine    | Regime                          | RPO\*        | $K_p$ | $K_i$ | Runs        |
-|-----------|----------------------------------|--------------|------|------|-------------|
-| MongoDB   | Regime 1 — Conservative           | 2.0 s        | 0.8  | 0.20 | 20 × 600 s  |
-| MongoDB   | Regime 2 — Active tracking        | 0.5 s        | 0.8  | 0.20 | 10 × 600 s  |
-| MongoDB   | Multi-target generalisation study | 1.0 / 2.0 / 3.0 s | 0.8  | 0.20 | 5 × 600 s each |
-| MySQL PXC | Main evaluation                   | 1.0 s        | 0.5  | 0.10 | 20 × 600 s  |
-| Redis     | Main evaluation                   | 1.0 s        | 0.4  | 0.08 | 20 × 600 s  |
-
+Engine	Regime	RPO*	$K_p$	$K_i$	Runs
+MongoDB	Regime 1 — Conservative	2.0 s	0.8	0.20	20 × 600 s
+MongoDB	Regime 2 — Active tracking	0.5 s	0.8	0.20	10 × 600 s
+MongoDB	Multi-target generalisation study	1.0 / 2.0 / 3.0 s	0.8	0.20	5 × 600 s each
+MySQL PXC	Main evaluation	1.0 s	0.5	0.10	20 × 600 s
+Redis	Main evaluation	1.0 s	0.4	0.08	20 × 600 s
 The headline abstract figures (0.5 % / 0.3 % / 49.5 % violation rates,
 1.2 % tracking accuracy) come from the specific regime/target listed
 above — see `analysis_outputs/` for the exact table each number is
 drawn from.
-
 ```bash
 # Example: MongoDB Regime 2 (active tracking)
 python experiments/run_campaign.py --engine mongodb --rpo-target 0.5 --n-runs 10
 ```
-
 ---
-
-## Step 3 — Analyze Results
-
+Step 3 — Analyze Results
 ```bash
 # Full summary with bootstrap CIs
 python analysis/analyze.py results/
@@ -151,26 +116,18 @@ python analysis/analyze.py results/ --latex
 # Single engine
 python analysis/analyze.py results/ --engine mongodb
 ```
-
 ---
-
-## Key Implementation Notes
-
-### Redis BGREWRITEAOF fix
+Key Implementation Notes
+Redis BGREWRITEAOF fix
 The paper acknowledges that Run 1 had 100% violations due to a cold-start
 AOF artifact. `run_experiment.py` calls `BGREWRITEAOF` and waits for
 completion before every run. This is critical for reproducible results.
-
-### MongoDB multi-target experiments
+MongoDB multi-target experiments
 The campaign also runs MongoDB at RPO* ∈ {1.0, 2.0, 3.0} s to demonstrate
 controller generalization across SLA targets.
-
 ---
-
-## Oracle Cloud Free Tier (for multi-machine cluster)
-
+Oracle Cloud Free Tier (for multi-machine cluster)
 To run on a real multi-machine cluster (addresses Threat T1):
-
 ```bash
 # 1. Create 4 ARM instances on Oracle Cloud Free Tier
 #    (Always Free: 4 × Ampere A1, 1 OCPU + 6 GB RAM each)
@@ -201,14 +158,10 @@ kubectl port-forward svc/mysql-pxc 3306:3306 &
 kubectl port-forward svc/redis 6379:6379 &
 python experiments/run_campaign.py --n-runs 20
 ```
-
 Inter-node latency on Oracle Cloud: ~1–5 ms (vs. ~0.1 ms on Kind/WSL2),
 directly addressing Threat T1 from the paper's validity section.
-
 ---
-
-## Data availability
-
+Data availability
 Raw per-run results (JSON) and derived analysis tables (CSV/LaTeX) are
 included under `results/` and `analysis_outputs/` respectively. If the
 full raw dataset exceeds GitHub's practical size limits, it is archived
