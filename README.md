@@ -16,6 +16,27 @@ If you use this code, please cite:
 
 ---
 
+## A note on result file naming
+
+Some run numbers (e.g. `run06`, `run13`, `run14`, `run15`) appear with
+**two different TPS values** in the filename, e.g.
+`mongodb_run06_236tps.json` and `mongodb_run06_320tps.json`. This is not
+a duplicate or a data-entry error: the two files correspond to **two
+different workload generators run under the same run index**:
+
+- The file **without** a `workload_source` field (e.g. `..._320tps.json`)
+  is from the main campaign, driven by the custom token-bucket generator
+  described in `experiments/workload.py`.
+- The file **with** `"workload_source": "ycsb-0.17.0"` in its JSON header
+  (e.g. `..._236tps.json`) is from the YCSB replication study reported in
+  the paper's evaluation section, which reuses the same run indices under
+  a different load generator to test cross-generator generalisation.
+
+Inspect the top-level `workload_source` key of any result file to
+determine which experiment it belongs to.
+
+---
+
 ## Repository Structure
 
 ```
