@@ -246,6 +246,11 @@ class ArimaFeedforwardPIController:
 # Self-test with the paper's own first-order plant model (Eq. 3),
 # run against your ACTUAL EngineConfig entries from config.py.
 # Run this locally (no cluster needed) BEFORE spending cluster time.
+#
+# PATCH (Reviewer 1, point 4): now uses ENGINE_DWB_BOUNDS per engine
+# instead of the global DWB_MIN/DWB_MAX defaults -- without this, the
+# self-test would misleadingly show every engine capped at MongoDB's
+# 0.5s ceiling, hiding exactly the bug this patch fixes.
 # ---------------------------------------------------------------------
 
 def _toy_plant_step(rpo_hat: float, dwb_cmd: float, ts: float,
@@ -256,16 +261,18 @@ def _toy_plant_step(rpo_hat: float, dwb_cmd: float, ts: float,
 
 
 def _self_test():
-    from rpo_controller.config import ENGINES
+    from rpo_controller.config import ENGINES, ENGINE_DWB_BOUNDS
     from rpo_controller.pi_controller import PIController
 
     for name, cfg in ENGINES.items():
-        print(f"\n=== {name}  (rpo_star={cfg.rpo_star}s, "
-              f"Kp={cfg.kp}, Ki={cfg.ki}) ===")
+        dwb_min, dwb_max = ENGINE_DWB_BOUNDS[name]   # PATCH (point 4 fix)
 
-        main = PIController(cfg)
-        naive = NaiveHeuristicPIController(cfg)
-        arima = ArimaFeedforwardPIController(cfg)
+        print(f"\n=== {name}  (rpo_star={cfg.rpo_star}s, "
+              f"Kp={cfg.kp}, Ki={cfg.ki}, dwb range=[{dwb_min}, {dwb_max}]) ===")
+
+        main = PIController(cfg, dwb_min=dwb_min, dwb_max=dwb_max)
+        naive = NaiveHeuristicPIController(cfg, dwb_min=dwb_min, dwb_max=dwb_max)
+        arima = ArimaFeedforwardPIController(cfg, dwb_min=dwb_min, dwb_max=dwb_max)
         print(f"naive gains: Kp={naive.kp:.4f}  Ki={naive.ki:.5f} "
               f"(vs. ITAE Kp={cfg.kp}, Ki={cfg.ki})")
 
@@ -276,7 +283,7 @@ def _self_test():
         ]:
             ctrl.reset()
             rpo_hat = 0.1
-            dwb = DWB_MIN
+            dwb = dwb_min
             tps = 200.0
             for k in range(400):  # 200s at Ts=0.5s
                 tps += (5.0 if 100 < k < 150 else 0.0)  # synthetic ramp

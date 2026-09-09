@@ -14,7 +14,7 @@ import logging
 from dataclasses import dataclass
 from typing import List, Dict, Any
 
-from rpo_controller.config import TS, ENGINES
+from rpo_controller.config import TS, ENGINES, ENGINE_DWB_BOUNDS
 from rpo_controller.pi_controller import PIController
 from rpo_controller.baseline_controllers import (
     NaiveHeuristicPIController, ArimaFeedforwardPIController,
@@ -24,14 +24,27 @@ from rpo_controller.proxies import (
     reset_redis_proxy,
 )
 from rpo_controller.actuators import actuate_mongodb, actuate_mysql, actuate_redis
+# NOTE: _open_connections / _close_connections come straight from
+# service.py, which already has the point 7 multi-node MySQL fix -- so
+# this file inherits it automatically, no separate change needed here.
 from rpo_controller.service import _open_connections, _close_connections
 
 log = logging.getLogger(__name__)
 
+# PATCH (Reviewer 1, point 4): pass per-engine dwb bounds via keyword
+# args -- NOT positional (*ENGINE_DWB_BOUNDS[...]), since ts/i_max sit
+# between cfg and dwb_min/dwb_max in these constructors' signatures;
+# positional unpacking would silently land the bounds in the wrong slots.
 CONTROLLER_FACTORIES = {
-    "main":      lambda cfg: PIController(cfg),
-    "naive_pid": lambda cfg: NaiveHeuristicPIController(cfg),
-    "arima_ff":  lambda cfg: ArimaFeedforwardPIController(cfg),
+    "main":      lambda cfg: PIController(cfg,
+                     dwb_min=ENGINE_DWB_BOUNDS[cfg.name][0],
+                     dwb_max=ENGINE_DWB_BOUNDS[cfg.name][1]),
+    "naive_pid": lambda cfg: NaiveHeuristicPIController(cfg,
+                     dwb_min=ENGINE_DWB_BOUNDS[cfg.name][0],
+                     dwb_max=ENGINE_DWB_BOUNDS[cfg.name][1]),
+    "arima_ff":  lambda cfg: ArimaFeedforwardPIController(cfg,
+                     dwb_min=ENGINE_DWB_BOUNDS[cfg.name][0],
+                     dwb_max=ENGINE_DWB_BOUNDS[cfg.name][1]),
 }
 
 
@@ -82,8 +95,11 @@ async def _run_engine_loop(
                 rpo_hat = await asyncio.to_thread(
                     read_proxy_mongodb, connections["mongo_db"])
             elif engine_name == "mysql":
+                # PATCH (point 7): proxy reads from one representative
+                # node (unchanged design intent) -- connections["mysql_conns"]
+                # is now a list (service.py's fixed _open_connections).
                 rpo_hat = await asyncio.to_thread(
-                    read_proxy_mysql, connections["mysql_conn"])
+                    read_proxy_mysql, connections["mysql_conns"][0])
             else:
                 rpo_hat = await asyncio.to_thread(
                     read_proxy_redis, connections["redis_client"])
@@ -103,8 +119,10 @@ async def _run_engine_loop(
                 val = await asyncio.to_thread(
                     actuate_mongodb, connections["mongo_db"], dwb)
             elif engine_name == "mysql":
+                # PATCH (point 7): pass the full node list, actuate_mysql
+                # now loops over all of them internally.
                 val = await asyncio.to_thread(
-                    actuate_mysql, connections["mysql_conn"], dwb)
+                    actuate_mysql, connections["mysql_conns"], dwb)
             else:
                 val = await asyncio.to_thread(
                     actuate_redis, connections["redis_client"], dwb)
