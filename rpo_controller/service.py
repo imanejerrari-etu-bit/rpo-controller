@@ -180,19 +180,13 @@ def _open_connections(engines: List[str]) -> Dict:
     if "mysql" in engines:
         # PATCH (Reviewer 1, point 7): open ONE connection PER PXC NODE,
         # not a single connection through the load-balanced Service.
-        # See mysql_pxc_pod_hosts() in config.py for the in-cluster-DNS
-        # version. If running the controller from OUTSIDE the cluster
-        # (e.g. a Windows host via kubectl port-forward, as used for
-        # manual testing this session), replace mysql_pxc_pod_hosts()
-        # with a list of (host, port) pairs, one per pod-specific
-        # port-forward, e.g.:
-        #   mysql_targets = [("127.0.0.1", 33061), ("127.0.0.1", 33062),
-        #                     ("127.0.0.1", 33063)]
-        # and adjust the loop below accordingly.
+        # mysql_pxc_pod_hosts() returns (host, port) pairs -- tonight's
+        # setup uses 3 individual port-forwards to the Percona Operator
+        # pods (127.0.0.1:33061/33062/33063), see config.py.
         mysql_conns = []
-        for host in mysql_pxc_pod_hosts():
+        for host, port in mysql_pxc_pod_hosts():
             mysql_conns.append(mysql.connector.connect(
-                host=host, port=MYSQL_PORT,
+                host=host, port=port,
                 user=MYSQL_USER, password=MYSQL_PASS,
                 database=MYSQL_DB,
                 autocommit=True,

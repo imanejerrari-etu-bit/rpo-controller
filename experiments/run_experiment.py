@@ -8,6 +8,17 @@ Usage:
 
 Output:
     results/<engine>_run<id>_<tps>tps.json
+
+--- PATCH (Reviewer 1, point 3 — fault injection ground-truth) ---
+Added an --ack-log argument (defaults to
+results/<engine>_run<id>_<tps>tps.ack.csv) passed through to
+make_workload(), so every acknowledged write is logged for later
+crash-recovery auditing (see audit_rpo.py). Everything else is
+unchanged: this file still runs a normal, uninterrupted 600s
+experiment even if the engine crashes mid-run — service.py already
+catches proxy/actuator exceptions and continues, so a controlled
+crash just shows up as a run of degraded/fallback ticks in the
+output JSON, not a process failure.
 """
 from __future__ import annotations
 import argparse
@@ -42,24 +53,27 @@ log = logging.getLogger("run_experiment")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Pre-run setup per engine
+# Pre-run setup per engine (unchanged)
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _setup_redis():
-    """
-    FIX for the cold-start artifact (Run 1 = 100% violations in the paper).
-
-    BGREWRITEAOF must be called before each run to reset the AOF file
-    and the growth ratio g back to 1.0. Without this, the AOF file
-    grows from a previous run's baseline, causing the proxy to saturate
-    immediately at run start.
-    """
     r = redis_lib.Redis(host=REDIS_HOST, port=REDIS_PORT,
                         password=REDIS_PASS or None, decode_responses=True)
+
+    # PATCH (fault-injection ground-truth bug, same class as MongoDB/MySQL
+    # above): workload.py's TTL=300s does not reliably clear a previous
+    # run's "k:*" keys before the next trial starts (trials are often
+    # <300s apart), so audit_rpo.py's SCAN-based max-key query can pick
+    # up a leftover key from an earlier run instead of this run's own
+    # data. Delete them explicitly before every run.
+    stale_keys = list(r.scan_iter(match="k:*", count=1000))
+    if stale_keys:
+        r.delete(*stale_keys)
+        log.info("Redis: cleared %d leftover k:* keys from previous runs", len(stale_keys))
+
     log.info("Redis: triggering BGREWRITEAOF to reset AOF baseline ...")
     r.execute_command("BGREWRITEAOF")
 
-    # Wait for rewrite to complete (poll aof_rewrite_in_progress)
     for _ in range(30):
         info = r.info("persistence")
         if info.get("aof_rewrite_in_progress", 1) == 0:
@@ -69,32 +83,50 @@ def _setup_redis():
     else:
         log.warning("Redis: AOF rewrite did not complete in 30 s — proceeding anyway")
 
-    # Also reset appendfsync to everysec (neutral start)
     r.config_set("appendfsync", "everysec")
     r.close()
-    time.sleep(2)    # let Redis settle
+    time.sleep(2)
 
 
 def _setup_mysql():
-    """Reset MySQL innodb_flush_log to neutral (v=2) before run."""
-    conn = mysql.connector.connect(
-        host=MYSQL_HOST, port=MYSQL_PORT,
-        user=MYSQL_USER, password=MYSQL_PASS,
-        database=MYSQL_DB, autocommit=True,
-    )
-    cursor = conn.cursor()
-    cursor.execute("SET GLOBAL innodb_flush_log_at_trx_commit = 2")
-    cursor.close()
-    conn.close()
-    log.info("MySQL: innodb_flush_log_at_trx_commit reset to 2")
+    # PATCH (Reviewer 1, point 7): same bug as the control loop's
+    # actuator -- a single connection through MYSQL_HOST:MYSQL_PORT
+    # only ever reaches one node, and innodb_flush_log_at_trx_commit
+    # is per-node, not Galera-replicated. Apply the reset AND the
+    # table-drop (fault-injection ground-truth fix, kept from before)
+    # on EVERY node.
+    from rpo_controller.config import mysql_pxc_pod_hosts
+    for host, port in mysql_pxc_pod_hosts():
+        conn = mysql.connector.connect(
+            host=host, port=port,
+            user=MYSQL_USER, password=MYSQL_PASS,
+            database=MYSQL_DB, autocommit=True,
+        )
+        cursor = conn.cursor()
+        # Table only needs dropping once really (Galera replicates DDL/
+        # data, unlike SET GLOBAL) -- but IF EXISTS makes repeating it
+        # per node harmless and keeps this loop uniform/simple.
+        cursor.execute("DROP TABLE IF EXISTS writes")
+        cursor.execute("SET GLOBAL innodb_flush_log_at_trx_commit = 2")
+        cursor.close()
+        conn.close()
+    log.info("MySQL: writes table dropped, innodb_flush_log_at_trx_commit reset to 2 on all nodes")
 
 
 def _setup_mongodb():
-    """Reset MongoDB journalCommitInterval to 100 ms (neutral) before run."""
     client = pymongo.MongoClient(MONGO_URI)
+    # PATCH (fault-injection ground-truth bug): without this, the
+    # "workload.writes" collection accumulates seq_id-overlapping
+    # documents across every run ever executed, so audit_rpo.py's
+    # "max recovered seq_id" query returns the cumulative maximum
+    # across ALL prior runs instead of this run's own data -- making
+    # every crash look like zero data loss regardless of what actually
+    # happened. run_ablation.py already does this; run_experiment.py
+    # did not, until now.
+    client["workload"]["writes"].drop()
     client["admin"].command({"setParameter": 1, "journalCommitInterval": 100})
     client.close()
-    log.info("MongoDB: journalCommitInterval reset to 100 ms")
+    log.info("MongoDB: workload.writes dropped, journalCommitInterval reset to 100 ms")
 
 
 SETUP_FNS = {
@@ -108,9 +140,12 @@ SETUP_FNS = {
 # Main
 # ─────────────────────────────────────────────────────────────────────────────
 
-async def main(engine: str, tps: float, run_id: int, out_dir: Path):
+async def main(engine: str, tps: float, run_id: int, out_dir: Path,
+                ack_log: Path, duration: int):
     log.info("=" * 60)
-    log.info("RUN START  engine=%s  tps=%.0f  run_id=%d", engine, tps, run_id)
+    log.info("RUN START  engine=%s  tps=%.0f  run_id=%d  duration=%ds",
+              engine, tps, run_id, duration)
+    log.info("ack log -> %s", ack_log)
     log.info("=" * 60)
 
     # 1. Pre-run setup (BGREWRITEAOF for Redis, parameter reset for others)
@@ -118,14 +153,16 @@ async def main(engine: str, tps: float, run_id: int, out_dir: Path):
 
     # 2. Start workload generator (warmup period before controller)
     log.info("Starting workload generator (%d s warmup) ...", WARMUP)
-    workload = make_workload(engine, tps)
+    ack_log.parent.mkdir(parents=True, exist_ok=True)
+    workload = make_workload(engine, tps, ack_log_path=str(ack_log))   # PATCH
     workload.start()
     await asyncio.sleep(WARMUP)
 
-    # 3. Run PI controller for full duration
-    log.info("Controller running for %d s ...", RUN_DURATION)
+    # 3. Run PI controller for `duration` seconds (PATCH: overridable, was
+    # always RUN_DURATION from config.py)
+    log.info("Controller running for %d s ...", duration)
     t_wall_start = time.time()
-    results      = await run_controller([engine], RUN_DURATION)
+    results      = await run_controller([engine], duration)
     wall_elapsed = time.time() - t_wall_start
 
     # 4. Stop workload + cooldown
@@ -142,9 +179,11 @@ async def main(engine: str, tps: float, run_id: int, out_dir: Path):
         "rpo_star":     ENGINES[engine].rpo_star,
         "kp":           ENGINES[engine].kp,
         "ki":           ENGINES[engine].ki,
-        "duration_s":   RUN_DURATION,
+        "duration_s":   duration,
         "wall_time_s":  round(wall_elapsed, 1),
+        "wall_clock_start": t_wall_start,   # PATCH: needed to map tick "t" -> unix time for audit_rpo.py
         "n_ticks":      len(ticks),
+        "ack_log":      str(ack_log),       # PATCH
         "ticks": [
             {
                 "t":       round(tk.t, 3),
@@ -160,7 +199,7 @@ async def main(engine: str, tps: float, run_id: int, out_dir: Path):
     out_dir.mkdir(parents=True, exist_ok=True)
     fname = out_dir / f"{engine}_run{run_id:02d}_{int(tps)}tps.json"
     fname.write_text(json.dumps(record, indent=2))
-    log.info("Saved → %s  (%d ticks)", fname, len(ticks))
+    log.info("Saved -> %s  (%d ticks)", fname, len(ticks))
     return fname
 
 
@@ -171,6 +210,18 @@ if __name__ == "__main__":
     parser.add_argument("--tps",    required=True, type=float)
     parser.add_argument("--run-id", required=True, type=int)
     parser.add_argument("--out-dir", default="results", type=Path)
+    parser.add_argument("--duration", default=RUN_DURATION, type=int,
+                        help="Override RUN_DURATION (s) — useful to shorten "
+                             "fault-injection runs; default matches config.py "
+                             "for normal campaign runs.")
+    parser.add_argument("--ack-log", default=None, type=Path,
+                        help="Path for the write-acknowledgement log "
+                             "(default: <out-dir>/<engine>_run<id>_<tps>tps.ack.csv)")
     args = parser.parse_args()
 
-    asyncio.run(main(args.engine, args.tps, args.run_id, args.out_dir))
+    ack_log = args.ack_log or (
+        args.out_dir / f"{args.engine}_run{args.run_id:02d}_{int(args.tps)}tps.ack.csv"
+    )
+
+    asyncio.run(main(args.engine, args.tps, args.run_id, args.out_dir, ack_log,
+                      args.duration))

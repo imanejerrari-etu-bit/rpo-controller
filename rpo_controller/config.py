@@ -75,33 +75,35 @@ MYSQL_W_WAITS:   float = 0.1    # Innodb_log_waits
 # not even be the node the workload generator's own (separately
 # load-balanced) connection happens to be writing to.
 #
-# ADJUST THESE to match whichever PXC deployment you actually use:
-#   - k8s/mysql-pxc.yaml (plain StatefulSet, currently in the repo):
-#       MYSQL_PXC_HEADLESS_SVC = "mysql-pxc-headless"
-#       MYSQL_PXC_POD_PREFIX   = "mysql-pxc"
-#   - Percona Operator deployment (pxc_cr.yaml, used for tonight's
-#     fault-injection testing, includes real HAProxy):
-#       MYSQL_PXC_HEADLESS_SVC = "pxc-rpo-experiment-pxc"
-#       MYSQL_PXC_POD_PREFIX   = "pxc-rpo-experiment-pxc"
+# TONIGHT'S SETUP: the controller runs from the Windows host (outside
+# the cluster), so in-cluster DNS names don't resolve directly. Using
+# the 3 individual port-forwards already set up for verify_mysql_nodes.py:
+#   kubectl port-forward pod/pxc-rpo-experiment-pxc-0 33061:3306 -n default
+#   kubectl port-forward pod/pxc-rpo-experiment-pxc-1 33062:3306 -n default
+#   kubectl port-forward pod/pxc-rpo-experiment-pxc-2 33063:3306 -n default
+#
+# LATER, if the controller ever runs AS A POD inside the cluster, switch
+# to MYSQL_PXC_TARGETS = [(f"{MYSQL_PXC_POD_PREFIX}-{i}.{MYSQL_PXC_HEADLESS_SVC}",
+# 3306) for i in range(MYSQL_PXC_REPLICAS)] instead.
 MYSQL_PXC_REPLICAS: int = 3
-MYSQL_PXC_HEADLESS_SVC: str = "mysql-pxc-headless"
-MYSQL_PXC_POD_PREFIX: str = "mysql-pxc"
+MYSQL_PXC_HEADLESS_SVC: str = "pxc-rpo-experiment-pxc"   # Percona Operator deployment
+MYSQL_PXC_POD_PREFIX: str = "pxc-rpo-experiment-pxc"
+
+MYSQL_PXC_TARGETS = [
+    ("127.0.0.1", 33061),
+    ("127.0.0.1", 33062),
+    ("127.0.0.1", 33063),
+]
 
 
 def mysql_pxc_pod_hosts():
     """
-    Stable per-pod DNS names, one per Galera node.
-
-    Only resolves from INSIDE the cluster's DNS (i.e. if the controller
-    itself runs as a pod). If running the controller from outside the
-    cluster (e.g. a Windows host via kubectl port-forward, as used for
-    manual testing), you cannot use these hostnames directly -- instead
-    open one port-forward PER POD on distinct local ports and return
-    that list of (host, port) pairs from an equivalent function. See
-    mysql_multinode_patch_point7.py for the full discussion.
+    Returns (host, port) pairs, one per Galera node -- currently the 3
+    port-forwarded targets above (controller running from outside the
+    cluster). Switch this to construct in-cluster DNS names + port 3306
+    if the controller ever runs as a pod inside the cluster instead.
     """
-    return [f"{MYSQL_PXC_POD_PREFIX}-{i}.{MYSQL_PXC_HEADLESS_SVC}"
-            for i in range(MYSQL_PXC_REPLICAS)]
+    return MYSQL_PXC_TARGETS
 
 
 @dataclass
@@ -128,8 +130,13 @@ ENGINES: Dict[str, EngineConfig] = {
 MYSQL_HOST:  str = "localhost"
 MYSQL_USER:  str = "root"
 MONGO_URI:   str = "mongodb://localhost:27017/admin"
-MYSQL_PORT:  int = 3307
-MYSQL_PASS:  str = "TestPass123"
+MYSQL_PORT:  int = 33061   # PATCH: points to pxc-rpo-experiment-pxc-0's
+                            # port-forward. Used by workload.py (only needs
+                            # ONE valid node -- Galera replicates writes
+                            # itself) and as a fallback single-connection
+                            # port. service.py's multi-node actuator uses
+                            # MYSQL_PXC_TARGETS above instead, not this.
+MYSQL_PASS:  str = "ChangeMeRootPW!"   # matches tonight's pxc_cr.yaml secret
 MYSQL_DB:    str = "ycsb"
 REDIS_HOST:  str = "localhost"
 REDIS_PORT:  int = 6379
