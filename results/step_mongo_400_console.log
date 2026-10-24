@@ -1,0 +1,12 @@
+INFO:run_experiment:MongoDB: workload.writes dropped, journalCommitInterval reset to 100 ms
+INFO:experiments.workload:MongoDB workload started — 400 TPS
+INFO:step_response_mongo:segment 0: J=500 ms, readback=500
+INFO:step_response_mongo:segment 1: J=100 ms, readback=100
+INFO:step_response_mongo:segment 2: J=20 ms, readback=20
+INFO:experiments.workload:MongoDB workload stopped
+
+seg  J(ms) readback | sync/s  flush/s   bytes/s  mean_sync(ms)  interval_between_syncs(ms)
+  0    500      500 |  2.072    1.957  123996.8          9.203                      482.5
+  1    100      100 |   9.29    9.232  124223.1          8.616                      107.6
+  2     20       20 | 42.014   42.565  124597.8          3.717                       23.8
+saved results/step_mongo_400tps.json

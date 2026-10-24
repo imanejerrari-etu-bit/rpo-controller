@@ -1,0 +1,99 @@
+
+C:\Users\HP\Documents\ycsb\YCSB-0.17.0>"C:\Program Files\Eclipse Adoptium\jdk-17.0.16.8-hotspot\bin\java.exe"  -classpath "C:\Users\HP\Documents\ycsb\YCSB-0.17.0\conf;C:\Users\HP\Documents\ycsb\YCSB-0.17.0\core\target\core-0.17.0.jar;C:\Users\HP\Documents\ycsb\YCSB-0.17.0\core\target\dependency\HdrHistogram-2.1.4.jar;C:\Users\HP\Documents\ycsb\YCSB-0.17.0\core\target\dependency\htrace-core4-4.1.0-incubating.jar;C:\Users\HP\Documents\ycsb\YCSB-0.17.0\core\target\dependency\jackson-core-asl-1.9.4.jar;C:\Users\HP\Documents\ycsb\YCSB-0.17.0\core\target\dependency\jackson-mapper-asl-1.9.4.jar;C:\Users\HP\Documents\ycsb\YCSB-0.17.0\jdbc\src\main\conf;C:\Users\HP\Documents\ycsb\YCSB-0.17.0\jdbc\target\jdbc-binding-0.17.0.jar;C:\Users\HP\Documents\ycsb\YCSB-0.17.0\jdbc\target\dependency\commons-collections-3.2.1.jar;C:\Users\HP\Documents\ycsb\YCSB-0.17.0\jdbc\target\dependency\commons-lang-2.4.jar;C:\Users\HP\Documents\ycsb\YCSB-0.17.0\jdbc\target\dependency\commons-pool-1.5.4.jar;C:\Users\HP\Documents\ycsb\YCSB-0.17.0\jdbc\target\dependency\geronimo-jms_1.1_spec-1.1.1.jar;C:\Users\HP\Documents\ycsb\YCSB-0.17.0\jdbc\target\dependency\geronimo-jta_1.1_spec-1.1.1.jar;C:\Users\HP\Documents\ycsb\YCSB-0.17.0\jdbc\target\dependency\mysql-connector-j-8.4.0.jar;C:\Users\HP\Documents\ycsb\YCSB-0.17.0\jdbc\target\dependency\openjpa-jdbc-2.1.1.jar;C:\Users\HP\Documents\ycsb\YCSB-0.17.0\jdbc\target\dependency\openjpa-kernel-2.1.1.jar;C:\Users\HP\Documents\ycsb\YCSB-0.17.0\jdbc\target\dependency\openjpa-lib-2.1.1.jar;C:\Users\HP\Documents\ycsb\YCSB-0.17.0\jdbc\target\dependency\serp-1.13.1.jar" site.ycsb.Client -t -db site.ycsb.db.JdbcDBClient -s -P workloads/workload_rpo -p db.driver=com.mysql.cj.jdbc.Driver -p db.url="jdbc:mysql://127.0.0.1:3307/ycsb" -p db.user=root -p db.passwd=CHANGE_ME -p insertstart=0 -p threads=32 -target 84 -p maxexecutiontime=600 
+Command line: -t -db site.ycsb.db.JdbcDBClient -s -P workloads/workload_rpo -p db.driver=com.mysql.cj.jdbc.Driver -p db.url=jdbc:mysql://127.0.0.1:3307/ycsb -p db.user=root -p db.passwd=CHANGE_ME -p insertstart=0 -p threads=32 -target 84 -p maxexecutiontime=600
+YCSB Client 0.17.0
+
+Loading workload...
+Starting test.
+Maximum execution time specified as: 600 secs
+Adding shard node URL: jdbc:mysql://127.0.0.1:3307/ycsb
+2026-07-06 00:16:06:759 0 sec: 0 operations; est completion in 0 second 
+Using shards: 1, batchSize:-1, fetchSize: -1
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+2026-07-06 00:16:16:680 10 sec: 653 operations; 65,24 current ops/sec; est completion in 17 days 17 hours [INSERT: Count=653, Max=100223, Min=7700, Avg=13288,4, 90=19423, 99=49951, 99.9=90495, 99.99=100223] 
+2026-07-06 00:16:26:682 20 sec: 1370 operations; 71,69 current ops/sec; est completion in 16 days 21 hours [INSERT: Count=717, Max=106175, Min=7612, Avg=13933,99, 90=21855, 99=49439, 99.9=66623, 99.99=106175] 
+2026-07-06 00:16:36:676 30 sec: 2115 operations; 74,54 current ops/sec; est completion in 16 days 10 hours [INSERT: Count=745, Max=192383, Min=7296, Avg=13365,88, 90=19279, 99=52415, 99.9=77375, 99.99=192383] 
+2026-07-06 00:16:46:678 40 sec: 2814 operations; 69,88 current ops/sec; est completion in 16 days 10 hours [INSERT: Count=699, Max=134527, Min=7708, Avg=14281,8, 90=21103, 99=68031, 99.9=91519, 99.99=134527] 
+2026-07-06 00:16:56:680 50 sec: 3525 operations; 71,09 current ops/sec; est completion in 16 days 10 hours [INSERT: Count=711, Max=100415, Min=7456, Avg=14039,03, 90=21391, 99=57823, 99.9=95231, 99.99=100415] 
+2026-07-06 00:17:06:675 60 sec: 4230 operations; 70,54 current ops/sec; est completion in 16 days 10 hours [INSERT: Count=705, Max=87551, Min=7068, Avg=14151,86, 90=21759, 99=54847, 99.9=76223, 99.99=87551] 
+2026-07-06 00:17:16:679 70 sec: 4956 operations; 72,57 current ops/sec; est completion in 16 days 8 hours [INSERT: Count=726, Max=167807, Min=7188, Avg=13734,3, 90=19807, 99=62431, 99.9=116095, 99.99=167807] 
+2026-07-06 00:17:26:681 80 sec: 5646 operations; 68,99 current ops/sec; est completion in 16 days 9 hours [INSERT: Count=690, Max=72831, Min=7484, Avg=14478,13, 90=23583, 99=53183, 99.9=58911, 99.99=72831] 
+2026-07-06 00:17:36:675 90 sec: 6348 operations; 70,24 current ops/sec; est completion in 16 days 9 hours [INSERT: Count=702, Max=105919, Min=7124, Avg=14213,14, 90=22799, 99=60447, 99.9=98943, 99.99=105919] 
+2026-07-06 00:17:46:677 100 sec: 7022 operations; 67,39 current ops/sec; est completion in 16 days 11 hours [INSERT: Count=674, Max=209663, Min=7628, Avg=14802,72, 90=21359, 99=66495, 99.9=117503, 99.99=209663] 
+2026-07-06 00:17:56:679 110 sec: 7746 operations; 72,38 current ops/sec; est completion in 16 days 10 hours [INSERT: Count=724, Max=90239, Min=7616, Avg=13810,65, 90=21343, 99=55647, 99.9=89727, 99.99=90239] 
+2026-07-06 00:18:06:674 120 sec: 8430 operations; 68,43 current ops/sec; est completion in 16 days 11 hours [INSERT: Count=684, Max=101823, Min=7308, Avg=14592,62, 90=23551, 99=64927, 99.9=94271, 99.99=101823] 
+2026-07-06 00:18:16:677 130 sec: 9162 operations; 73,18 current ops/sec; est completion in 16 days 10 hours [INSERT: Count=732, Max=109439, Min=7368, Avg=13636,13, 90=20831, 99=68479, 99.9=94463, 99.99=109439] 
+2026-07-06 00:18:26:680 140 sec: 9794 operations; 63,18 current ops/sec; est completion in 16 days 13 hours [INSERT: Count=632, Max=146047, Min=7464, Avg=15819,08, 90=26479, 99=65215, 99.9=131583, 99.99=146047] 
+2026-07-06 00:18:36:675 150 sec: 10525 operations; 73,14 current ops/sec; est completion in 16 days 11 hours [INSERT: Count=731, Max=117503, Min=7056, Avg=13666,72, 90=21439, 99=67455, 99.9=97151, 99.99=117503] 
+2026-07-06 00:18:46:684 160 sec: 11269 operations; 74,33 current ops/sec; est completion in 16 days 10 hours [INSERT: Count=744, Max=105535, Min=7208, Avg=13439,2, 90=21167, 99=56287, 99.9=102015, 99.99=105535] 
+2026-07-06 00:18:56:679 170 sec: 11981 operations; 71,24 current ops/sec; est completion in 16 days 10 hours [INSERT: Count=712, Max=100415, Min=7360, Avg=14015,18, 90=20655, 99=59871, 99.9=96319, 99.99=100415] 
+2026-07-06 00:19:06:683 180 sec: 12693 operations; 71,18 current ops/sec; est completion in 16 days 9 hours [INSERT: Count=712, Max=144383, Min=7316, Avg=14037,97, 90=21007, 99=66431, 99.9=122559, 99.99=144383] 
+2026-07-06 00:19:16:678 190 sec: 13433 operations; 74,03 current ops/sec; est completion in 16 days 8 hours [INSERT: Count=740, Max=72255, Min=7256, Avg=13492,81, 90=21167, 99=59615, 99.9=70847, 99.99=72255] 
+2026-07-06 00:19:26:678 200 sec: 14097 operations; 66,4 current ops/sec; est completion in 16 days 10 hours [INSERT: Count=664, Max=179199, Min=7764, Avg=15048,76, 90=23295, 99=66623, 99.9=129279, 99.99=179199] 
+2026-07-06 00:19:36:683 210 sec: 14855 operations; 75,77 current ops/sec; est completion in 16 days 8 hours [INSERT: Count=758, Max=125695, Min=7260, Avg=13178,43, 90=19871, 99=51999, 99.9=97855, 99.99=125695] 
+2026-07-06 00:19:46:676 220 sec: 15492 operations; 63,74 current ops/sec; est completion in 16 days 10 hours [INSERT: Count=637, Max=103935, Min=8016, Avg=15680,5, 90=24895, 99=71167, 99.9=97343, 99.99=103935] 
+2026-07-06 00:19:56:678 230 sec: 16081 operations; 58,89 current ops/sec; est completion in 16 days 13 hours [INSERT: Count=589, Max=171519, Min=7484, Avg=16967,39, 90=27647, 99=72319, 99.9=90879, 99.99=171519] 
+2026-07-06 00:20:06:681 240 sec: 16805 operations; 72,38 current ops/sec; est completion in 16 days 12 hours [INSERT: Count=724, Max=105023, Min=7184, Avg=13782,9, 90=22127, 99=60543, 99.9=76287, 99.99=105023] 
+2026-07-06 00:20:16:676 250 sec: 17534 operations; 72,94 current ops/sec; est completion in 16 days 11 hours [INSERT: Count=729, Max=115711, Min=7440, Avg=13702,06, 90=20799, 99=67775, 99.9=102463, 99.99=115711] 
+2026-07-06 00:20:26:678 260 sec: 18179 operations; 64,49 current ops/sec; est completion in 16 days 13 hours [INSERT: Count=645, Max=136831, Min=7556, Avg=15492,93, 90=26175, 99=64223, 99.9=111807, 99.99=136831] 
+2026-07-06 00:20:36:680 270 sec: 18925 operations; 74,59 current ops/sec; est completion in 16 days 12 hours [INSERT: Count=746, Max=75839, Min=7480, Avg=13390,87, 90=21487, 99=59455, 99.9=67839, 99.99=75839] 
+2026-07-06 00:20:46:675 280 sec: 19632 operations; 70,74 current ops/sec; est completion in 16 days 12 hours [INSERT: Count=708, Max=110783, Min=7156, Avg=14118,92, 90=22175, 99=60031, 99.9=87743, 99.99=110783] 
+2026-07-06 00:20:56:677 290 sec: 20307 operations; 67,48 current ops/sec; est completion in 16 days 12 hours [INSERT: Count=674, Max=110591, Min=7560, Avg=14808,76, 90=23967, 99=66815, 99.9=86783, 99.99=110591] 
+2026-07-06 00:21:06:680 300 sec: 20987 operations; 67,99 current ops/sec; est completion in 16 days 13 hours [INSERT: Count=680, Max=122687, Min=6864, Avg=14705,6, 90=23631, 99=63423, 99.9=94335, 99.99=122687] 
+2026-07-06 00:21:16:674 310 sec: 21696 operations; 70,94 current ops/sec; est completion in 16 days 12 hours [INSERT: Count=709, Max=150783, Min=7176, Avg=14070,72, 90=21967, 99=67007, 99.9=94719, 99.99=150783] 
+2026-07-06 00:21:26:677 320 sec: 22365 operations; 66,88 current ops/sec; est completion in 16 days 13 hours [INSERT: Count=669, Max=91583, Min=7464, Avg=14948,91, 90=25967, 99=75967, 99.9=81855, 99.99=91583] 
+2026-07-06 00:21:36:679 330 sec: 23087 operations; 72,19 current ops/sec; est completion in 16 days 12 hours [INSERT: Count=722, Max=186879, Min=7216, Avg=13837,69, 90=18831, 99=64767, 99.9=90303, 99.99=186879] 
+2026-07-06 00:21:46:682 340 sec: 23750 operations; 66,28 current ops/sec; est completion in 16 days 13 hours [INSERT: Count=663, Max=141567, Min=6952, Avg=15075,73, 90=25711, 99=69887, 99.9=119743, 99.99=141567] 
+2026-07-06 00:21:56:676 350 sec: 24423 operations; 67,34 current ops/sec; est completion in 16 days 13 hours [INSERT: Count=673, Max=121343, Min=7504, Avg=14832,84, 90=22399, 99=72511, 99.9=116223, 99.99=121343] 
+2026-07-06 00:22:06:679 360 sec: 25115 operations; 69,18 current ops/sec; est completion in 16 days 14 hours [INSERT: Count=692, Max=123135, Min=7416, Avg=14441,92, 90=22527, 99=67967, 99.9=85183, 99.99=123135] 
+2026-07-06 00:22:16:683 370 sec: 25779 operations; 66,38 current ops/sec; est completion in 16 days 14 hours [INSERT: Count=664, Max=178687, Min=7336, Avg=15045,2, 90=23295, 99=80511, 99.9=134015, 99.99=178687] 
+2026-07-06 00:22:26:675 380 sec: 26460 operations; 68,15 current ops/sec; est completion in 16 days 14 hours [INSERT: Count=681, Max=121727, Min=7252, Avg=14661,96, 90=23663, 99=58303, 99.9=106815, 99.99=121727] 
+2026-07-06 00:22:36:681 390 sec: 27153 operations; 69,27 current ops/sec; est completion in 16 days 14 hours [INSERT: Count=694, Max=195199, Min=7228, Avg=14405,7, 90=21423, 99=74303, 99.9=123775, 99.99=195199] 
+2026-07-06 00:22:46:671 400 sec: 27868 operations; 71,56 current ops/sec; est completion in 16 days 14 hours [INSERT: Count=714, Max=128383, Min=7124, Avg=13969,41, 90=21967, 99=70015, 99.9=95551, 99.99=128383] 
+2026-07-06 00:22:56:675 410 sec: 28563 operations; 69,48 current ops/sec; est completion in 16 days 14 hours [INSERT: Count=695, Max=116799, Min=7276, Avg=14375,61, 90=22319, 99=70847, 99.9=93247, 99.99=116799] 
+2026-07-06 00:23:06:677 420 sec: 29262 operations; 69,88 current ops/sec; est completion in 16 days 14 hours [INSERT: Count=700, Max=149119, Min=7320, Avg=14287,82, 90=24351, 99=69567, 99.9=98303, 99.99=149119] 
+2026-07-06 00:23:16:682 430 sec: 29964 operations; 70,16 current ops/sec; est completion in 16 days 14 hours [INSERT: Count=701, Max=123071, Min=7408, Avg=14242,27, 90=23695, 99=68991, 99.9=93503, 99.99=123071] 
+2026-07-06 00:23:26:674 440 sec: 30620 operations; 65,65 current ops/sec; est completion in 16 days 15 hours [INSERT: Count=656, Max=103423, Min=7328, Avg=15224,03, 90=25407, 99=65119, 99.9=98495, 99.99=103423] 
+2026-07-06 00:23:36:678 450 sec: 31333 operations; 71,27 current ops/sec; est completion in 16 days 14 hours [INSERT: Count=713, Max=146431, Min=7284, Avg=14016,38, 90=21055, 99=56639, 99.9=126911, 99.99=146431] 
+2026-07-06 00:23:46:680 460 sec: 32006 operations; 67,29 current ops/sec; est completion in 16 days 15 hours [INSERT: Count=673, Max=155263, Min=7280, Avg=14837,66, 90=24767, 99=73727, 99.9=130495, 99.99=155263] 
+2026-07-06 00:23:56:675 470 sec: 32711 operations; 70,54 current ops/sec; est completion in 16 days 14 hours [INSERT: Count=705, Max=75199, Min=6960, Avg=14159,31, 90=22495, 99=53279, 99.9=71487, 99.99=75199] 
+2026-07-06 00:24:06:678 480 sec: 33377 operations; 66,59 current ops/sec; est completion in 16 days 15 hours [INSERT: Count=666, Max=222847, Min=7208, Avg=15017,32, 90=23407, 99=74751, 99.9=117887, 99.99=222847] 
+2026-07-06 00:24:16:679 490 sec: 34049 operations; 67,19 current ops/sec; est completion in 16 days 15 hours [INSERT: Count=672, Max=124031, Min=7384, Avg=14862,21, 90=24143, 99=59647, 99.9=100543, 99.99=124031] 
+2026-07-06 00:24:26:674 500 sec: 34729 operations; 68,03 current ops/sec; est completion in 16 days 15 hours [INSERT: Count=680, Max=110527, Min=6904, Avg=14693,51, 90=23471, 99=63871, 99.9=92607, 99.99=110527] 
+2026-07-06 00:24:36:677 510 sec: 35442 operations; 71,28 current ops/sec; est completion in 16 days 15 hours [INSERT: Count=713, Max=104383, Min=7316, Avg=14015,32, 90=22031, 99=66943, 99.9=96831, 99.99=104383] 
+2026-07-06 00:24:46:679 520 sec: 36134 operations; 69,19 current ops/sec; est completion in 16 days 15 hours [INSERT: Count=692, Max=87743, Min=7260, Avg=14434,78, 90=24159, 99=59871, 99.9=83903, 99.99=87743] 
+2026-07-06 00:24:56:682 530 sec: 36832 operations; 69,78 current ops/sec; est completion in 16 days 15 hours [INSERT: Count=698, Max=99583, Min=7444, Avg=14317,79, 90=19983, 99=66687, 99.9=92607, 99.99=99583] 
+2026-07-06 00:25:06:675 540 sec: 37482 operations; 65,05 current ops/sec; est completion in 16 days 16 hours [INSERT: Count=650, Max=97151, Min=7452, Avg=15358,14, 90=27183, 99=74495, 99.9=84287, 99.99=97151] 
+2026-07-06 00:25:16:678 550 sec: 38194 operations; 71,18 current ops/sec; est completion in 16 days 15 hours [INSERT: Count=712, Max=167935, Min=7120, Avg=14027, 90=21551, 99=64095, 99.9=163967, 99.99=167935] 
+2026-07-06 00:25:26:681 560 sec: 38907 operations; 71,28 current ops/sec; est completion in 16 days 15 hours [INSERT: Count=713, Max=82559, Min=7196, Avg=14001,36, 90=24239, 99=61567, 99.9=81599, 99.99=82559] 
+2026-07-06 00:25:36:676 570 sec: 39610 operations; 70,34 current ops/sec; est completion in 16 days 15 hours [INSERT: Count=703, Max=92607, Min=7192, Avg=14218,9, 90=20895, 99=77183, 99.9=92095, 99.99=92607] 
+2026-07-06 00:25:46:678 580 sec: 40319 operations; 70,89 current ops/sec; est completion in 16 days 15 hours [INSERT: Count=709, Max=94719, Min=6972, Avg=14099,64, 90=24847, 99=60479, 99.9=69695, 99.99=94719] 
+2026-07-06 00:25:56:681 590 sec: 40976 operations; 65,68 current ops/sec; est completion in 16 days 15 hours [INSERT: Count=658, Max=146175, Min=7220, Avg=15193,8, 90=23663, 99=71551, 99.9=127743, 99.99=146175] 
+Maximum time elapsed. Requesting stop for the workload.
+Stop requested for workload. Now Joining!
+2026-07-06 00:26:06:675 600 sec: 41719 operations; 74,34 current ops/sec; est completion in 16 days 15 hours [INSERT: Count=742, Max=76543, Min=7024, Avg=13450,28, 90=20831, 99=53247, 99.9=72255, 99.99=76543] 
+2026-07-06 00:26:06:688 600 sec: 41720 operations; 76,92 current ops/sec; est completion in 16 days 15 hours [CLEANUP: Count=1, Max=4891, Min=4888, Avg=4890, 90=4891, 99=4891, 99.9=4891, 99.99=4891] [INSERT: Count=1, Max=9575, Min=9568, Avg=9572, 90=9575, 99=9575, 99.9=9575, 99.99=9575] 
+[OVERALL], RunTime(ms), 600018
+[OVERALL], Throughput(ops/sec), 69.53124739591145
+[TOTAL_GCS_G1_Young_Generation], Count, 6
+[TOTAL_GC_TIME_G1_Young_Generation], Time(ms), 17
+[TOTAL_GC_TIME_%_G1_Young_Generation], Time(%), 0.002833248335883257
+[TOTAL_GCS_G1_Old_Generation], Count, 0
+[TOTAL_GC_TIME_G1_Old_Generation], Time(ms), 0
+[TOTAL_GC_TIME_%_G1_Old_Generation], Time(%), 0.0
+[TOTAL_GCs], Count, 6
+[TOTAL_GC_TIME], Time(ms), 17
+[TOTAL_GC_TIME_%], Time(%), 0.002833248335883257
+[CLEANUP], Operations, 1
+[CLEANUP], AverageLatency(us), 4890.0
+[CLEANUP], MinLatency(us), 4888
+[CLEANUP], MaxLatency(us), 4891
+[CLEANUP], 95thPercentileLatency(us), 4891
+[CLEANUP], 99thPercentileLatency(us), 4891
+[INSERT], Operations, 41720
+[INSERT], AverageLatency(us), 14333.200767018217
+[INSERT], MinLatency(us), 6864
+[INSERT], MaxLatency(us), 222847
+[INSERT], 95thPercentileLatency(us), 34079
+[INSERT], 99thPercentileLatency(us), 64767
+[INSERT], Return=OK, 41720

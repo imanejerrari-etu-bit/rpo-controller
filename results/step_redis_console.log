@@ -1,0 +1,30 @@
+2026-10-09 20:54:27,536  INFO     run_experiment  Redis: triggering BGREWRITEAOF to reset AOF baseline ...
+2026-10-09 20:54:28,582  INFO     run_experiment  Redis: AOF rewrite complete — baseline reset
+2026-10-09 20:54:30,599  INFO     experiments.workload  Redis workload started — 400 TPS
+2026-10-09 20:54:30,661  INFO     step_response  segment 0: mode=always readback=['always']
+2026-10-09 21:00:00,800  INFO     step_response  segment 1: mode=everysec readback=['everysec']
+2026-10-09 21:05:00,817  INFO     step_response  segment 2: mode=always readback=['always']
+2026-10-09 21:10:00,847  INFO     step_response  segment 3: mode=everysec readback=['everysec']
+2026-10-09 21:15:00,849  INFO     experiments.workload  Redis workload stopped
+
+Segment  mode       proxy mean   std     readback_ok
+      0  always           30.0     0.0  True
+      1  everysec         30.0     0.0  True
+      2  always           30.0     0.0  True
+      3  everysec         30.0     0.0  True
+
+Raw fields whose segment means differ by >20 % between segments (candidate proxies):
+  aof_buffer_length                       9.929        15.206        15.289        20.267
+  aof_current_size                  1897757.891  11182913.533  20049445.364  30764727.517
+  aof_pending_bio_fsync                   0.000         0.003         0.000         0.014
+  current_cow_peak                        0.000         0.000         0.000      1638.400
+  current_cow_size                        0.000         0.000         0.000      1638.400
+  current_save_keys_processed             0.000         0.000         0.000         0.003
+  current_save_keys_total                 0.000       673.817         0.000       416.006
+  instantaneous_ops_per_sec              82.558       369.525       133.644       328.858
+  rdb_bgsave_in_progress                  0.000         0.008         0.000         0.006
+  rdb_changes_since_last_save          4945.646     11649.147      5379.239      9536.650
+  rdb_last_bgsave_time_sec                0.174         0.000         0.000         0.000
+  rdb_last_cow_size                  884084.364   1558914.844   1560576.000   2214331.733
+  rdb_saves                               1.997         6.275        10.267        14.892
+saved results/step_redis_400tps.json

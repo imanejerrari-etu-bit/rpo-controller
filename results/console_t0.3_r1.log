@@ -1,0 +1,16 @@
+INFO:run_experiment:MySQL: writes table dropped, innodb_flush_log_at_trx_commit reset to 2 on all nodes
+INFO:experiments.workload:MySQL workload started — 80 TPS
+INFO:experiments.workload:MySQL workload stopped
+{
+  "ss_mean_s": 0.3,
+  "ss_std_s": 0.0512,
+  "mean_error_s": -0.0,
+  "frac_smoothed_above_target": 0.485,
+  "frac_time_mode2": 0.478,
+  "mode_switches": 115,
+  "inst_gap_max_s": 1.646,
+  "acked_inserts": 45797,
+  "throughput_ips": 76.3,
+  "readback_mismatches": 0
+}
+saved results/cl_mysql_pi_80tps_t0.3_r1.json

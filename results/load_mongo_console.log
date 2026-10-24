@@ -1,0 +1,14 @@
+mongo healthy (ok) | restarts total: 5
+=== mongo_L400_r1 start 13:22:06 restarts=5
+    end 13:32:23 restarts=5 state=ok flag=ok
+=== mongo_L100_r1 start 13:33:25 restarts=5
+    end 13:43:58 restarts=5 state=ok flag=ok
+=== mongo_L100_r2 start 13:44:59 restarts=5
+    end 13:55:16 restarts=5 state=ok flag=ok
+=== mongo_L400_r2 start 13:56:17 restarts=5
+    end 14:06:34 restarts=5 state=ok flag=ok
+=== mongo_L400_r3 start 14:07:36 restarts=5
+    end 14:17:55 restarts=5 state=ok flag=ok
+=== mongo_L100_r3 start 14:18:56 restarts=5
+    end 14:29:12 restarts=5 state=ok flag=ok
+Done. Review results/sweep_log_load.csv: any FLAG != ok means that run must be excluded or repeated.

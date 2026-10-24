@@ -1,0 +1,26 @@
+Galera at start: 3/Primary/Synced  | restarts total: 115
+=== t0.1_r1  start 12:24:10  restarts=115  galera=3/Primary/Synced
+    end 12:34:28  restarts=115  galera=3/Primary/Synced  flag=ok
+=== t0.4_r1  start 12:35:28  restarts=115  galera=3/Primary/Synced
+    end 12:45:44  restarts=115  galera=3/Primary/Synced  flag=ok
+=== t0.3_r1  start 12:46:44  restarts=115  galera=3/Primary/Synced
+    end 12:56:59  restarts=115  galera=3/Primary/Synced  flag=ok
+=== t0.2_r1  start 12:57:59  restarts=115  galera=3/Primary/Synced
+    end 13:08:14  restarts=115  galera=3/Primary/Synced  flag=ok
+=== t0.3_r2  start 13:09:15  restarts=115  galera=3/Primary/Synced
+    end 13:19:30  restarts=115  galera=3/Primary/Synced  flag=ok
+=== t0.4_r2  start 13:20:30  restarts=115  galera=3/Primary/Synced
+    end 13:30:45  restarts=115  galera=3/Primary/Synced  flag=ok
+=== t0.1_r2  start 13:31:46  restarts=115  galera=3/Primary/Synced
+    end 13:42:01  restarts=115  galera=3/Primary/Synced  flag=ok
+=== t0.2_r2  start 13:43:01  restarts=115  galera=3/Primary/Synced
+    end 13:53:17  restarts=115  galera=3/Primary/Synced  flag=ok
+=== t0.3_r3  start 13:54:17  restarts=115  galera=3/Primary/Synced
+    end 14:04:32  restarts=115  galera=3/Primary/Synced  flag=ok
+=== t0.4_r3  start 14:05:32  restarts=115  galera=3/Primary/Synced
+    end 14:15:48  restarts=115  galera=3/Primary/Synced  flag=ok
+=== t0.2_r3  start 14:16:48  restarts=115  galera=3/Primary/Synced
+    end 14:27:04  restarts=115  galera=3/Primary/Synced  flag=ok
+=== t0.1_r3  start 14:28:05  restarts=115  galera=3/Primary/Synced
+    end 14:38:19  restarts=115  galera=3/Primary/Synced  flag=ok
+Done. Review results/sweep_log.csv: any FLAG != ok means that run must be excluded or repeated.

@@ -1,0 +1,18 @@
+INFO:run_experiment:MongoDB: workload.writes dropped, journalCommitInterval reset to 100 ms
+INFO:experiments.workload:MongoDB workload started — 250 TPS
+INFO:experiments.workload:MongoDB workload stopped
+{
+  "ss_mean_s": 0.1021,
+  "ss_std_s": 0.0006,
+  "mean_error_s": -0.0021,
+  "frac_above_target": 0.998,
+  "J_mean_ms": 91.7,
+  "J_changes": 100,
+  "fsync_per_s": 9.84,
+  "flush_per_s": 9.8,
+  "mean_sync_ms": 10.135,
+  "acked_inserts": 189090,
+  "throughput_ips": 315.1,
+  "readback_mismatches": 0
+}
+saved results/cl_mongo_pi_250tps_t0.1_r3.json

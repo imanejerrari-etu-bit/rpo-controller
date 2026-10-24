@@ -1,0 +1,49 @@
+# Kind cluster — 1 control-plane + 3 workers
+# Matches the paper's "four-node Kind/WSL2 cluster"
+#
+# Usage:
+#   kind create cluster --name rpo-cluster --config kind-config.yaml
+#
+apiVersion: kind.x-k8s.io/v1alpha4
+kind: Cluster
+name: rpo-cluster
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      - containerPort: 27017   # MongoDB
+        hostPort:      27017
+        protocol:      TCP
+      - containerPort: 3306    # MySQL
+        hostPort:      3306
+        protocol:      TCP
+      - containerPort: 6379    # Redis
+        hostPort:      6379
+        protocol:      TCP
+
+  - role: worker
+    kubeadmConfigPatches:
+      - |
+        kind: JoinConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "role=db"
+
+  - role: worker
+    kubeadmConfigPatches:
+      - |
+        kind: JoinConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "role=db"
+
+  - role: worker
+    kubeadmConfigPatches:
+      - |
+        kind: JoinConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "role=db"
+
+networking:
+  apiServerAddress: "127.0.0.1"
+  apiServerPort: 6443

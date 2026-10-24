@@ -1,0 +1,14 @@
+Galera at start: 3/Primary/Synced | restarts total: 115
+=== static1_r1 start 19:29:57 restarts=115 galera=3/Primary/Synced
+    end 19:40:13 restarts=115 galera=3/Primary/Synced flag=ok
+=== static2_r1 start 19:41:13 restarts=115 galera=3/Primary/Synced
+    end 19:51:28 restarts=115 galera=3/Primary/Synced flag=ok
+=== static2_r2 start 19:52:29 restarts=115 galera=3/Primary/Synced
+    end 20:02:44 restarts=115 galera=3/Primary/Synced flag=ok
+=== static1_r2 start 20:03:44 restarts=115 galera=3/Primary/Synced
+    end 20:13:59 restarts=115 galera=3/Primary/Synced flag=ok
+=== static1_r3 start 20:15:00 restarts=115 galera=3/Primary/Synced
+    end 20:25:15 restarts=115 galera=3/Primary/Synced flag=ok
+=== static2_r3 start 20:26:15 restarts=115 galera=3/Primary/Synced
+    end 20:36:31 restarts=115 galera=3/Primary/Synced flag=ok
+Done.

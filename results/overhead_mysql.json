@@ -1,0 +1,1 @@
+{"signal_read": {"n": 200, "median_ms": 6.322, "p95_ms": 36.35, "max_ms": 129.83, "pct_of_Ts_median": 1.26}, "actuation_3_nodes": {"n": 200, "median_ms": 27.119, "p95_ms": 54.681, "max_ms": 93.607, "pct_of_Ts_median": 5.42}}

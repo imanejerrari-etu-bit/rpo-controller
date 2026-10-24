@@ -1,0 +1,26 @@
+﻿# secrets
+.env
+*.pem
+*.key
+
+# python
+__pycache__/
+*.pyc
+.venv/
+
+# archives locales et rapports : pas dans le paquet de réplication
+results_backup_*/
+audit_report.txt
+secrets_masked.txt
+platform_info.txt
+audit_repo.ps1
+secrets_masked.ps1
+collect_platform_info.ps1
+NETTOYAGE_DEPOT.md
+
+# système et éditeurs
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/
+venv/

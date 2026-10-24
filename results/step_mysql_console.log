@@ -1,0 +1,14 @@
+2026-10-08 21:57:25,735  INFO     run_experiment  MySQL: writes table dropped, innodb_flush_log_at_trx_commit reset to 2 on all nodes
+2026-10-08 21:57:26,211  INFO     step_response  segment 0: mode=1 readback=[1, 1, 1]
+2026-10-08 21:57:26,439  INFO     experiments.workload  MySQL workload started — 80 TPS
+2026-10-08 22:02:56,277  INFO     step_response  segment 1: mode=2 readback=[2, 2, 2]
+2026-10-08 22:07:56,344  INFO     step_response  segment 2: mode=1 readback=[1, 1, 1]
+2026-10-08 22:12:56,364  INFO     step_response  segment 3: mode=2 readback=[2, 2, 2]
+2026-10-08 22:17:56,403  INFO     experiments.workload  MySQL workload stopped
+
+Segment  mode       proxy mean   std     readback_ok
+      0  1              0.8773  0.1235  True
+      1  2              0.8567  0.1459  True
+      2  1              0.8606  0.1502  True
+      3  2              0.8561  0.1476  True
+saved results/step_mysql_80tps.json

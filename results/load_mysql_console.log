@@ -1,0 +1,10 @@
+mysql healthy (3/Primary/Synced) | restarts total: 272
+skip mysql_L60_r1 (exists)
+skip mysql_L100_r1 (exists)
+skip mysql_L60_r2 (exists)
+skip mysql_L100_r2 (exists)
+=== mysql_L100_r3 start 12:56:58 restarts=272
+    end 13:07:16 restarts=272 state=3/Primary/Synced flag=ok
+=== mysql_L60_r3 start 13:08:16 restarts=272
+    end 13:18:31 restarts=272 state=3/Primary/Synced flag=ok
+Done. Review results/sweep_log_load.csv: any FLAG != ok means that run must be excluded or repeated.
